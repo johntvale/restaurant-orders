@@ -1,18 +1,12 @@
 import csv
 
 
-def get_requests_count(order, maria_requests):
+def get_requests_count(order, maria_orders):
     product = order[1]
-    if product not in maria_requests:
-        maria_requests[product] = 1
+    if product not in maria_orders:
+        maria_orders[product] = 1
     else:
-        maria_requests[product] += 1
-
-
-def food_difference(set_food, order):
-    ordered_by_joao = set()
-    if order[1] not in ordered_by_joao:
-        ordered_by_joao.add(order[1])
+        maria_orders[product] += 1
 
 
 def file_writer(items_to_write):
@@ -22,16 +16,16 @@ def file_writer(items_to_write):
 
 
 def data_separator(
-    order, maria_requests, arnaldo_requests,
-    joao_food_requests, joao_day_requests
+    order, maria_orders, arnaldo_orders,
+    joao_dish_orders, joao_day_orders
 ):
     if order[0] == "maria":
-        get_requests_count(order, maria_requests)
+        get_requests_count(order, maria_orders)
     if order[0] == "arnaldo":
-        get_requests_count(order, arnaldo_requests)
+        get_requests_count(order, arnaldo_orders)
     if order[0] == "joao":
-        joao_food_requests.add(order[1])
-        joao_day_requests.add(order[2])
+        joao_dish_orders.add(order[1])
+        joao_day_orders.add(order[2])
 
 
 def analyze_log(path_to_file):
@@ -39,30 +33,30 @@ def analyze_log(path_to_file):
         raise FileNotFoundError(f"Extensão inválida: '{path_to_file}'")
 
     try:
-        maria_requests = {}
-        arnaldo_requests = {}
-        joao_food_requests = set()
-        joao_day_requests = set()
-        food_list = set()
+        maria_orders = {}
+        arnaldo_orders = {}
+        joao_dish_orders = set()
+        joao_day_orders = set()
+        dish_list = set()
         days_list = set()
 
         with open(path_to_file, encoding="utf-8", mode="r") as file:
             data = csv.reader(file)
             for order in data:
-                food_list.add(order[1])
+                dish_list.add(order[1])
                 days_list.add(order[2])
                 data_separator(
-                    order, maria_requests, arnaldo_requests,
-                    joao_food_requests, joao_day_requests)
+                    order, maria_orders, arnaldo_orders,
+                    joao_dish_orders, joao_day_orders)
 
-        maria_most_requested_prod = max(maria_requests, key=maria_requests.get)
-        arnaldo_qty_requested = arnaldo_requests["hamburguer"]
-        joao_never_requested_prod = food_list.difference(joao_food_requests)
-        joao_never_requested_day = days_list.difference(joao_day_requests)
+        maria_most_ordered_dish = max(maria_orders, key=maria_orders.get)
+        arnaldo_qty_orders = arnaldo_orders["hamburguer"]
+        joao_never_ordered_dish = dish_list.difference(joao_dish_orders)
+        joao_never_ordered_day = days_list.difference(joao_day_orders)
 
         file_writer([
-            maria_most_requested_prod, arnaldo_qty_requested,
-            joao_never_requested_prod, joao_never_requested_day,
+            maria_most_ordered_dish, arnaldo_qty_orders,
+            joao_never_ordered_dish, joao_never_ordered_day,
         ])
     except FileNotFoundError:
         raise FileNotFoundError(f"Arquivo inexistente: '{path_to_file}'")
